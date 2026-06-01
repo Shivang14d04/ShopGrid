@@ -3,6 +3,9 @@ package org.shivang.ecommerceapp.service;
 import org.shivang.ecommerceapp.model.Product;
 import org.shivang.ecommerceapp.repo.ProductRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,14 +19,23 @@ import java.util.List;
 public class ProductService {
     private final ProductRepo productRepo;
 
+    @Cacheable(value= "product", key = "#id")
     public  Product getProductById(int id) {
+        System.out.println("fetching from db");
         return productRepo.findById(id).orElse(new Product(-1));
     }
 
+    @Cacheable(value = "products")
     public  List<Product> getAllProducts() {
         return productRepo.findAll();
     }
 
+
+    @Caching(evict = {
+            @CacheEvict(value = "products", allEntries = true),
+            @CacheEvict(value = "searchProducts", allEntries = true),
+            @CacheEvict(value = "product", key = "#product.id")
+    })
     public Product addOrUpdateProduct(Product product, MultipartFile image) throws IOException {
         if (product.getStockQuantity() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock quantity cannot be negative");
@@ -37,10 +49,17 @@ public class ProductService {
     }
 
 
+    @Caching(evict = {
+            @CacheEvict(value = "products", allEntries = true),
+            @CacheEvict(value = "searchProducts", allEntries = true),
+            @CacheEvict(value = "product", key = "#id")
+    })
     public void deleteProduct(int id) {
         productRepo.deleteById(id);
     }
 
+
+    @Cacheable(value = "searchProducts", key = "#keyword.toLowerCase()")
     public List<Product> searchProducts(String keyword) {
         return productRepo.searchProducts(keyword);
     }
