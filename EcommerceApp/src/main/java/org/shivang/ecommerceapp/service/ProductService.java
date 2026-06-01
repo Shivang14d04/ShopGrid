@@ -2,17 +2,19 @@ package org.shivang.ecommerceapp.service;
 
 import org.shivang.ecommerceapp.model.Product;
 import org.shivang.ecommerceapp.repo.ProductRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
-    @Autowired
-    private ProductRepo productRepo;
+    private final ProductRepo productRepo;
 
     public  Product getProductById(int id) {
         return productRepo.findById(id).orElse(new Product(-1));
@@ -23,9 +25,14 @@ public class ProductService {
     }
 
     public Product addOrUpdateProduct(Product product, MultipartFile image) throws IOException {
-        product.setImageName(image.getOriginalFilename());
-        product.setImageType(image.getContentType());
-        product.setImageData(image.getBytes());
+        if (product.getStockQuantity() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock quantity cannot be negative");
+        }
+        if (image != null && !image.isEmpty()) {
+            product.setImageName(image.getOriginalFilename());
+            product.setImageType(image.getContentType());
+            product.setImageData(image.getBytes());
+        }
         return productRepo.save(product);
     }
 

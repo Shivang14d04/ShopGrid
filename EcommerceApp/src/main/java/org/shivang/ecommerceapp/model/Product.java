@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Data
@@ -23,7 +22,7 @@ public class Product {
     private String brand;
     private BigDecimal price;
     private String category;
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
     private boolean productAvailable;
     private int stockQuantity;
