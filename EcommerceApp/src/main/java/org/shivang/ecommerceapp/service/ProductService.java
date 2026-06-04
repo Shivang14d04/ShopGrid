@@ -2,7 +2,7 @@ package org.shivang.ecommerceapp.service;
 
 import org.shivang.ecommerceapp.model.Product;
 import org.shivang.ecommerceapp.repo.ProductRepo;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ProductService {
-    private final ProductRepo productRepo;
+    @Autowired
+    private ProductRepo productRepo;
 
     @Cacheable(value= "product", key = "#id")
     public  Product getProductById(int id) {

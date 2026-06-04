@@ -1,10 +1,10 @@
 package org.shivang.ecommerceapp.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.shivang.ecommerceapp.model.dto.AuthenticationResponse;
 import org.shivang.ecommerceapp.model.dto.LoginRequest;
 import org.shivang.ecommerceapp.model.dto.RegisterRequest;
 import org.shivang.ecommerceapp.service.AuthenticationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,10 +18,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin
-@RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationService authenticationService;
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody RegisterRequest request) {
