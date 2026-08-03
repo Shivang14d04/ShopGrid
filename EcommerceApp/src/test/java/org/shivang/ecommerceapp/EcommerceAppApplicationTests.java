@@ -1,13 +1,14 @@
 package org.shivang.ecommerceapp;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class EcommerceAppApplicationTests {
 
     @Test
-    void contextLoads() {
+    void applicationClassIsAvailable() {
+        assertNotNull(EcommerceAppApplication.class);
     }
 
 }

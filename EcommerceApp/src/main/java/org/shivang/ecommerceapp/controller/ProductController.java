@@ -4,6 +4,7 @@ package org.shivang.ecommerceapp.controller;
 import org.shivang.ecommerceapp.model.Product;
 import org.shivang.ecommerceapp.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,12 +52,18 @@ public class ProductController {
     public ResponseEntity<byte[]> getImageByProductId(@PathVariable int productId){
     Product product = productService.getProductById(productId);
 
-        if(product.getId()> 0){
-            return new ResponseEntity<>(product.getImageData(), HttpStatus.OK);
-        }
-        else{
+        if(product.getId() <= 0 || product.getImageData() == null){
             return new ResponseEntity<>( HttpStatus.NOT_FOUND);
         }
+
+        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+        if (product.getImageType() != null) {
+            mediaType = MediaType.parseMediaType(product.getImageType());
+        }
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .body(product.getImageData());
     }
     @PutMapping("/product/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -82,7 +89,7 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteProduct(@PathVariable int id ){
         Product product = productService.getProductById(id);
-        if(product != null){
+        if(product.getId() > 0){
             productService.deleteProduct(id);
             return new ResponseEntity<>("Deleted", HttpStatus.OK);
         }
@@ -90,6 +97,19 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    @PostMapping("/product/generate-description")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> generateDescription(@RequestParam String name, @RequestParam String category){
+        try{
+            String aiDesc = productService.generateDescription(name,category);
+            return new ResponseEntity<>(aiDesc, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
     @GetMapping("/products/search")
     public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword){
        List<Product> products =  productService.searchProducts(keyword);
