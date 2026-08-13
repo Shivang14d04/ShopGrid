@@ -25,9 +25,9 @@ public class ProductService {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
 
-    public ProductService(ProductRepo productRepo, ChatClient chatClient, VectorStore vectorStore) {
+    public ProductService(ProductRepo productRepo, ChatClient.Builder chatClientBuilder, VectorStore vectorStore) {
         this.productRepo = productRepo;
-        this.chatClient = chatClient;
+        this.chatClient = chatClientBuilder.build();
         this.vectorStore = vectorStore;
     }
 
@@ -129,7 +129,8 @@ public class ProductService {
                 
                 """, name , category );
 
-        return chatClient.prompt(descPrompt)
+        return chatClient.prompt()
+                .user(descPrompt)
                 .call()
                 .content();
     }

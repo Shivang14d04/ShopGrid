@@ -9,6 +9,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ChatClientConfig {
 
+    /**
+     * ChatMemory bean is auto-configured by Spring AI 2.0
+     * (MessageWindowChatMemory backed by InMemoryChatMemoryRepository).
+     * We inject it here to use with the memory advisor.
+     */
+
     @Bean
     public MessageChatMemoryAdvisor messageChatMemoryAdvisor(ChatMemory chatMemory) {
         return MessageChatMemoryAdvisor.builder(chatMemory).build();

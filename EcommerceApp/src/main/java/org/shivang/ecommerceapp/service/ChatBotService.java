@@ -32,7 +32,15 @@ public class ChatBotService {
             Resource promptResource = resourceLoader.getResource("classpath:prompts/chatbot-rag-prompt.st");
             String promptStringTemplate = promptResource.getContentAsString(StandardCharsets.UTF_8);
 
-            String context = fetchSemanticContext(userQuery);
+            String rawContext = fetchSemanticContext(userQuery);
+
+            final String context;
+            if (StringUtils.hasText(rawContext)) {
+                context = rawContext;
+            } else {
+                context = "No specific product or order data found matching this query. " +
+                          "Please provide a helpful general response based on the question.";
+            }
 
             if (!StringUtils.hasText(conversationId)) {
                 throw new IllegalArgumentException("conversationId is required for chat memory");
@@ -46,22 +54,32 @@ public class ChatBotService {
                     .content();
 
         } catch (IOException e) {
-            return "Bot Failed: " + e.getMessage();
+            return "I'm having trouble accessing my knowledge base right now. Please try again in a moment.";
         }
     }
 
     private String fetchSemanticContext(String userQuery) {
-        List<Document> documents = vectorStore.similaritySearch(
-                SearchRequest.builder()
-                        .query(userQuery)
-                        .topK(5)
-                        .similarityThresholdAll()
-                        .build()
-        );
-        StringBuilder context = new StringBuilder();
-        for (Document document : documents) {
-            context.append(document.getFormattedContent()).append("\n");
+        try {
+            List<Document> documents = vectorStore.similaritySearch(
+                    SearchRequest.builder()
+                            .query(userQuery)
+                            .topK(8)
+                            .similarityThreshold(0.3)
+                            .build()
+            );
+
+            if (documents == null || documents.isEmpty()) {
+                return "";
+            }
+
+            StringBuilder context = new StringBuilder();
+            for (Document document : documents) {
+                context.append(document.getFormattedContent()).append("\n---\n");
+            }
+            return context.toString();
+        } catch (Exception e) {
+            System.err.println("Vector store search failed: " + e.getMessage());
+            return "";
         }
-        return context.toString();
     }
 }

@@ -1,5 +1,7 @@
 package org.shivang.ecommerceapp.controller;
 
+import org.shivang.ecommerceapp.model.dto.ChatRequest;
+import org.shivang.ecommerceapp.model.dto.ChatResponse;
 import org.shivang.ecommerceapp.service.ChatBotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +16,27 @@ public class ChatBotController {
     @Autowired
     private ChatBotService chatBotService;
 
-    @GetMapping("/ask")
-    public ResponseEntity<String> askBot(@RequestParam String message,
-                                         @RequestParam(required = false) String conversationId) {
-        if (!StringUtils.hasText(conversationId)) {
-            return ResponseEntity.badRequest().body("conversationId is required");
+    @PostMapping("/ask")
+    public ResponseEntity<ChatResponse> askBot(@RequestBody ChatRequest request) {
+        if (!StringUtils.hasText(request.message())) {
+            return ResponseEntity.badRequest()
+                    .body(new ChatResponse("Message cannot be empty.", null));
         }
-        String response = chatBotService.getBotResponse(message, conversationId);
-        return ResponseEntity.ok(response);
+
+        String conversationId = request.conversationId();
+        if (!StringUtils.hasText(conversationId)) {
+            conversationId = java.util.UUID.randomUUID().toString();
+        }
+
+        try {
+            String response = chatBotService.getBotResponse(request.message(), conversationId);
+            return ResponseEntity.ok(new ChatResponse(response, conversationId));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ChatResponse(
+                            "I'm sorry, I'm having trouble processing your request right now. Please try again.",
+                            conversationId
+                    ));
+        }
     }
 }
