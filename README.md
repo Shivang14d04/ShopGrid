@@ -9,7 +9,7 @@ The application bridges modern web backend engineering with artificial intellige
 ---
 
 ## Live Deployment
-
+⚠️
 > **Note:** The backend service is hosted on Render's free tier. If the service has been inactive, the initial request may take approximately **1–2 minutes** while the instance spins up. Subsequent requests will respond at normal operating speeds.
 
 ---
