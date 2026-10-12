@@ -27,7 +27,7 @@ public class ChatBotService {
         this.chatClient = chatClient;
     }
 
-    public String getBotResponse(String userQuery, String conversationId) {
+    public String getBotResponse(String userQuery, String conversationId, String userIdentity) {
         try {
             Resource promptResource = resourceLoader.getResource("classpath:prompts/chatbot-rag-prompt.st");
             String promptStringTemplate = promptResource.getContentAsString(StandardCharsets.UTF_8);
@@ -46,9 +46,13 @@ public class ChatBotService {
                 throw new IllegalArgumentException("conversationId is required for chat memory");
             }
 
+            final String fullContext = StringUtils.hasText(userIdentity)
+                    ? userIdentity + "\n\n" + context
+                    : context;
+
             return chatClient.prompt()
                     .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId))
-                    .system(systemSpec -> systemSpec.text(promptStringTemplate).param("context", context))
+                    .system(systemSpec -> systemSpec.text(promptStringTemplate).param("context", fullContext))
                     .user(userQuery)
                     .call()
                     .content();
