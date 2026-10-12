@@ -299,26 +299,6 @@ cd EcommerceApp
 
 ---
 
-## Project Structure
 
-The codebase is structured under `org.shivang.ecommerceapp` with a strict separation of concerns across packages:
 
-```text
-src/main/java/org/shivang/ecommerceapp/
-├── aop/          # Aspect classes managing system logging, input validation, and performance monitoring
-├── config/       # Security filters, JWT authentication, CORS settings, and admin user data seeding
-├── controller/   # REST controllers exposing endpoints for authentication, orders, products, and AI chat
-├── exception/    # Global exception handling using @RestControllerAdvice
-├── model/        # JPA Entities and DTO structures mapping to database schemas
-├── repo/         # Repository interfaces extending JpaRepository for database access
-└── service/      # Core business logic layer, transaction management, Redis caching, and AI RAG pipelines
-```
 
----
-
-## Future Improvements
-
-- **Payment Gateway Integration:** Integrate Stripe or Razorpay webhooks for automated order payment lifecycle processing.
-- **Asynchronous Event Processing:** Utilize Spring Application Events or Kafka/RabbitMQ for background email dispatching and audit logging.
-- **Advanced Vector Search Hybrid Queries:** Combine SQL full-text search with `pgvector` cosine similarity for hybrid catalog search.
-- **Multi-Tenant / Multi-Store Support:** Extend data schemas and security roles to support multi-vendor catalog management.
