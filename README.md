@@ -14,18 +14,6 @@ The application bridges modern web backend engineering with artificial intellige
 
 ---
 
-## Key Features
-
-- **Stateless Authentication & Authorization:** Role-based access control (`ROLE_ADMIN` vs `ROLE_USER`) using Spring Security and JWT.
-- **High-Performance Caching:** Database query results cached via Spring Cache (`@Cacheable`, `@CacheEvict`, `@Caching`) backed by Redis to ensure low-latency response times on high-read catalog endpoints.
-- **Atomic Order Management:** Multi-step checkout pipeline validating stock availability, updating inventory, and creating orders within `@Transactional` boundaries.
-- **AI-Powered Store Assistant (RAG):** Interactive chatbot powered by Google Gemini GenAI that queries vector embeddings of store inventory and order history.
-- **Automated Content Generation:** Seamless AI generation of rich product descriptions during product creation.
-- **Semantic Vector Search:** Deep contextual search across products and order summaries using PostgreSQL `pgvector` embeddings.
-- **Aspect-Oriented Programming (AOP):** Centralized execution logging, request validation, and performance monitoring aspects to maintain clean business logic.
-
----
-
 ## Application Screenshots
 
 ### Product Catalog
@@ -58,6 +46,19 @@ Review orders, their statuses, and itemized totals.
 
 ![ShopGrid order history](docs/images/order-history.png)
 
+---
+
+## Key Features
+
+- **Stateless Authentication & Authorization:** Role-based access control (`ROLE_ADMIN` vs `ROLE_USER`) using Spring Security and JWT.
+- **High-Performance Caching:** Database query results cached via Spring Cache (`@Cacheable`, `@CacheEvict`, `@Caching`) backed by Redis to ensure low-latency response times on high-read catalog endpoints.
+- **Atomic Order Management:** Multi-step checkout pipeline validating stock availability, updating inventory, and creating orders within `@Transactional` boundaries.
+- **AI-Powered Store Assistant (RAG):** Interactive chatbot powered by Google Gemini GenAI that queries vector embeddings of store inventory and order history.
+- **Automated Content Generation:** Seamless AI generation of rich product descriptions during product creation.
+- **Semantic Vector Search:** Deep contextual search across products and order summaries using PostgreSQL `pgvector` embeddings.
+- **Aspect-Oriented Programming (AOP):** Centralized execution logging, request validation, and performance monitoring aspects to maintain clean business logic.
+  
+---
 
 ## Tech Stack
 
