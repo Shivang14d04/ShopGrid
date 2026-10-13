@@ -4,13 +4,13 @@
 
 **ShopGrid** is a high-performance eCommerce backend application built with **Java Spring Boot 3.x** and designed using clean, layered architecture principles. It exposes RESTful APIs for user authentication, product management, transactional order processing, and features intelligent AI integrations powered by Google Gemini and PostgreSQL `pgvector`, alongside robust Redis caching.
 
-The application bridges modern web backend engineering with artificial intelligence—enabling Retrieval-Augmented Generation (RAG) for conversational store navigation, automated AI-driven product metadata generation, and real-time semantic search over catalog and order history.
+The application bridges modern web backend engineering with artificial intelligence?enabling Retrieval-Augmented Generation (RAG) for conversational store navigation, automated AI-driven product metadata generation, and real-time semantic search over catalog and order history.
 
 ---
 
 ## Live Deployment
-⚠️
-> **Note:** The backend service is hosted on Render's free tier. If the service has been inactive, the initial request may take approximately **1–2 minutes** while the instance spins up. Subsequent requests will respond at normal operating speeds.
+??
+> **Note:** The backend service is hosted on Render's free tier. If the service has been inactive, the initial request may take approximately **1?2 minutes** while the instance spins up. Subsequent requests will respond at normal operating speeds.
 
 ---
 
@@ -26,35 +26,38 @@ The application bridges modern web backend engineering with artificial intellige
 
 ---
 
-## Architecture
+## Application Screenshots
 
-ShopGrid follows a clean, layered backend architecture that isolates concerns across API controllers, domain services, repository interfaces, data models, and cross-cutting aspects.
+### Product Catalog
+Browse products, filter by category, and explore the catalog.
 
-### System Layering
+![ShopGrid product catalog](docs/images/product-catalog.png)
 
-```text
-┌────────────────────────────────────────────────────────┐
-│                   REST Controllers                     │
-│    (AuthController, ProductController, OrderController)│
-└──────────────────────────┬─────────────────────────────┘
-                           │
-┌──────────────────────────▼─────────────────────────────┐
-│                    Service Layer                       │
-│    (Business Logic, Transaction Management, AI RAG)    │
-└──────────┬───────────────────────┬─────────────────────┘
-           │                       │
-┌──────────▼───────────┐ ┌─────────▼─────────────────────┐
-│   Data Access Layer  │ │       Cross-Cutting           │
-│   (Spring Data JPA)  │ │      (Spring AOP Aspects)     │
-└──────────┬───────────┘ └───────────────────────────────┘
-           │
-┌──────────▼─────────────────────────────────────────────┐
-│             Database & Remote Services                 │
-│    (PostgreSQL / pgvector, Redis Cache, Gemini AI)     │
-└────────────────────────────────────────────────────────┘
-```
+### Product Details
+View product information, stock availability, pricing, and add items to the cart.
 
----
+![ShopGrid product details](docs/images/product-details.png)
+
+### Shopping Cart
+Review quantities, item totals, and the order summary before checkout.
+
+![ShopGrid shopping cart](docs/images/shopping-cart.png)
+
+### User Registration
+Create an account to start shopping.
+
+![ShopGrid registration](docs/images/registration.png)
+
+### ShopGrid AI Assistant
+Ask product-related questions using the AI-powered store assistant.
+
+![ShopGrid AI assistant](docs/images/ai-assistant.png)
+
+### Order History
+Review orders, their statuses, and itemized totals.
+
+![ShopGrid order history](docs/images/order-history.png)
+
 
 ## Tech Stack
 
@@ -100,54 +103,10 @@ The application implements a stateless security model centered around JWT tokens
 
 High-read e-commerce catalog endpoints can create heavy database load. ShopGrid leverages **Spring Cache** backed by **Upstash Redis** to maximize read throughput and achieve low-latency responses.
 
-### Caching Strategy
-
-| Endpoint / Operation | Cache Action | Cache Name | Description |
-| :--- | :--- | :--- | :--- |
-| `GET /api/products` | `@Cacheable` | `products` | Caches the complete catalog list on initial request |
-| `GET /api/product/{id}` | `@Cacheable` | `product` | Caches individual product metadata by ID |
-| `GET /api/products/search` | `@Cacheable` | `productSearch` | Caches search results for specific query keywords |
-| `POST /api/product` | `@CacheEvict` | `products`, `productSearch` | Clears catalog & search list caches when a product is added |
-| `PUT /api/product/{id}` | `@CacheEvict` / `@Caching` | `products`, `product`, `productSearch` | Invalidates product-specific and list caches on updates |
-| `DELETE /api/product/{id}` | `@CacheEvict` / `@Caching` | `products`, `product`, `productSearch` | Purges cached entries associated with the deleted product |
-
-- **Multipart Image Support:** Products support binary image file uploads (`multipart/form-data`) up to 100MB, served via dedicated REST endpoints.
-
----
-
-## Transactional Order Management
-
-Order placement requires strict transactional guarantees to prevent race conditions and inventory drift:
-
-1. **Stock Validation:** The `OrderService` verifies item availability against current database stock within a single logical unit of work.
-2. **Atomic Inventory Update:** Product stock count is decremented immediately upon verification.
-3. **Order Record Creation:** The order entity, associated line items, total price, timestamp, and user reference are persisted.
-4. **Transaction Boundary:** Enforced with Spring's `@Transactional` annotation. If any step fails (e.g., insufficient stock or database timeout), all mutations roll back automatically.
-5. **Vector Indexing:** Upon successful order completion, an aggregated summary of the order is embedded into `pgvector` to enable order-aware contextual AI queries.
-
----
-
 ## AI / RAG / Vector Search
 
 ShopGrid integrates **Spring AI** with **Google Gemini** and **PostgreSQL `pgvector`** to deliver intelligent, context-aware store interactions.
 
-### RAG Architecture Workflow
-
-```text
-User Query ──► Backend Controller ──► Embedding Model (gemini-embedding-001)
-                                                 │
-                                                 ▼
-Gemini LLM ◄── Context Prompt ◄── pgvector Similarity Search
-    │
-    ▼
-HTTP Response (Store Assistant Answer)
-```
-
-1. **Retrieval-Augmented Generation (RAG):** When a user asks the AI assistant a question, the input is converted into a 768-dimensional embedding vector. The vector is searched against `pgvector` embeddings of active products and order context to retrieve relevant store facts.
-2. **Prompt Augmentation & Generation:** Retrieved product context is combined with the user query into a system prompt sent to `gemini-3.6-flash`, returning tailored responses.
-3. **Automated Content Generation:** When administrators create new products, the service can automatically generate optimized product descriptions using Google Gemini based on basic title and category parameters.
-
----
 
 ## API Endpoints Summary
 
@@ -196,35 +155,8 @@ The application is deployed in a cloud production environment using the followin
 * **AI:** Google Gemini API
 * **Vector Search:** PostgreSQL `pgvector` hosted through Supabase
 
-### Production Architecture
 
-```text
-Client
-   ↓
-Render
-(Spring Boot Backend)
-   ↓
-   ├── Supabase PostgreSQL
-   │      └── pgvector
-   │
-   ├── Upstash Redis
-   │      └── Caching
-   │
-   └── Google Gemini API
-          └── AI / RAG
-```
-
-### Deployment Process
-
-1. The Spring Boot backend is deployed on **Render**.
-2. The production application connects to **Supabase PostgreSQL** instead of a locally running PostgreSQL instance.
-3. Redis caching is connected to **Upstash Redis**.
-4. The required environment variables/secrets are configured in Render rather than hardcoded in the repository.
-5. The application is built and started using Maven/Spring Boot.
-6. Supabase PostgreSQL is configured with the `pgvector` extension to support vector storage and semantic search.
-7. The backend communicates with Google Gemini for AI-powered features and RAG functionality.
-
-> **Note:** The Render backend may spin down after a period of inactivity. As a result, the first request after inactivity may take approximately **1–2 minutes** while the service starts again. Subsequent requests should respond normally once the service is active.
+> **Note:** The Render backend may spin down after a period of inactivity. As a result, the first request after inactivity may take approximately **1?2 minutes** while the service starts again. Subsequent requests should respond normally once the service is active.
 
 ---
 
@@ -298,7 +230,5 @@ cd EcommerceApp
 ```
 
 ---
-
-
 
 
